@@ -1,6 +1,8 @@
 import 'package:arp_scanner/arp_scanner.dart';
 import 'package:arp_scanner/device.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:logger/logger.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,6 +33,18 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  static const platform = MethodChannel('arp.flutter.dev/callArpTable');
+  var logger = Logger();
+
+  Future<void> _getMacFromArpTable() async {
+    try {
+      dynamic result = await platform.invokeMethod('getFileArp');
+      logger.i(result);
+    } on PlatformException catch (e) {
+      logger.e(e);
+    }
+  }
+
   int _counter = 0;
 
   List<Device> devicesFound = [];
@@ -80,8 +94,9 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          devicesFound.clear();
-          await ArpScanner.scan();
+          _getMacFromArpTable();
+          // devicesFound.clear();
+          // await ArpScanner.scan();
         },
         tooltip: 'Increment',
         child: const Icon(Icons.scanner),
