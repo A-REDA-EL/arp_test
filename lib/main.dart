@@ -2,7 +2,7 @@ import 'package:arp_scanner/arp_scanner.dart';
 import 'package:arp_scanner/device.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:logger/logger.dart';
+import 'package:network_tools/network_tools.dart';
 
 void main() {
   runApp(const MyApp());
@@ -34,26 +34,26 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   static const platform = MethodChannel('arp.flutter.dev/callArpTable');
-  var logger = Logger();
 
   Future<void> _getMacFromArpTable() async {
     try {
       dynamic result = await platform.invokeMethod('getFileArp');
-      logger.i(result);
+      print(result);
     } on PlatformException catch (e) {
-      logger.e(e);
+      print(e);
     }
   }
 
-  int _counter = 0;
+  Future<void> mainMdns() async {
+    for (final ActiveHost activeHost in await MdnsScanner.searchMdnsDevices()) {
+      final MdnsInfo? mdnsInfo = await activeHost.mdnsInfo;
+      print(
+        'Address: ${activeHost.address}, Port: ${mdnsInfo!.mdnsPort}, ServiceType: ${mdnsInfo.mdnsServiceType}, MdnsName: ${mdnsInfo.getOnlyTheStartOfMdnsName()}',
+      );
+    }
+  }
 
   List<Device> devicesFound = [];
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
 
   @override
   void initState() {
@@ -94,9 +94,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
+          main();
           _getMacFromArpTable();
-          // devicesFound.clear();
-          // await ArpScanner.scan();
         },
         tooltip: 'Increment',
         child: const Icon(Icons.scanner),

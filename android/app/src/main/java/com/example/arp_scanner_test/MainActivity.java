@@ -30,6 +30,7 @@ public class MainActivity extends FlutterActivity {
                 .setMethodCallHandler(
                         (call, result) -> {
                             if (call.method.equals("getFileArp")) {
+                                doScan();
                                 String value = getMacAddress();
                                 result.success("Scanned");
                             } else {
@@ -46,7 +47,7 @@ public class MainActivity extends FlutterActivity {
             Process execWithBor = Runtime.getRuntime().exec("ip neighbor");
             Process execWithoutBor = Runtime.getRuntime().exec("ip neigh");
 
-            Log.i("fing:arp-proc", "Reading ARP table from '/proc/net/arp'");
+            Log.i("READING IP-NEIGHBOR", "Reading ARP table from '/proc/net/arp'");
 //            FileInputStream fileInputStream = new FileInputStream(new File("/proc/net/arp"));
 //            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileInputStream), 4096);
             InputStreamReader reader = new InputStreamReader(execWithBor.getInputStream());
